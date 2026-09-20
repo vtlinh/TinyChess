@@ -26,7 +26,11 @@ test('pieces move slowly along the knight L, with the AI animation following the
   const mover = page.locator('#motion-layer .moving-piece');
   await expect(mover).toHaveClass(/white knight/);
   await expect(page.locator('#board')).toHaveAttribute('aria-busy', 'true');
-  await expect(page.locator('.motion-track polyline')).toHaveAttribute('points', '650,750 650,550 550,550');
+  const track = page.locator('.motion-track polyline');
+  await expect(track).toHaveAttribute('points', '650,750 650,550 550,550');
+  await expect(track).toHaveAttribute('marker-end', 'url(#motion-arrowhead)');
+  await expect(page.locator('#motion-arrowhead')).toHaveAttribute('refX', '10');
+  await expect(page.locator('#motion-arrowhead')).toHaveAttribute('markerUnits', 'userSpaceOnUse');
   const sample = async (progress: number) => mover.evaluate(async (piece, time) => {
     const animation = piece.getAnimations()[0];
     animation.pause(); await animation.ready;
@@ -44,6 +48,7 @@ test('pieces move slowly along the knight L, with the AI animation following the
   expect(state(page).game.indices.length).toBe(1);
   await mover.evaluate(piece => piece.getAnimations()[0].finish());
   await expect(mover).toHaveClass(/black knight/);
+  await expect(track).toHaveAttribute('marker-end', 'url(#motion-arrowhead)');
   await expect(page.locator('#board')).toHaveAttribute('data-animating', 'false');
   expect(state(page).game.indices.length).toBe(2);
   await expect(page.locator('#motion-layer')).toBeEmpty();
@@ -52,18 +57,19 @@ test('pieces move slowly along the knight L, with the AI animation following the
 test('the AI waits for coaching audio, including a replay, before moving', { tag: '@cross-browser' }, async ({ page }) => {
   await page.addInitScript(() => {
     const tracked = window as typeof window & {
-      coachingAudio: { starts: number; held: number };
+      coachingAudio: { starts: number; effects: number; held: number };
       releaseCoachingAudio(): void;
     };
-    tracked.coachingAudio = { starts: 0, held: 0 };
+    tracked.coachingAudio = { starts: 0, effects: 0, held: 0 };
     let holdSpeechTimer = false, fakeTimer = 1000000;
     const held = new Map<number, () => void>();
     const start = AudioBufferSourceNode.prototype.start;
     AudioBufferSourceNode.prototype.start = function (...args) {
-      if ((this.buffer?.duration ?? 0) > 1) {
+      const duration = this.buffer?.duration ?? 0;
+      if (duration > 1) {
         tracked.coachingAudio.starts++;
         holdSpeechTimer = true;
-      }
+      } else if (duration >= .19 && duration <= .21) tracked.coachingAudio.effects++;
       return start.apply(this, args);
     };
     const setTimeout = window.setTimeout.bind(window), clearTimeout = window.clearTimeout.bind(window);
@@ -95,15 +101,41 @@ test('the AI waits for coaching audio, including a replay, before moving', { tag
   await expect(mover).toHaveClass(/white queen/);
   await expect(page.locator('#coach-message')).toHaveText('Careful! I can take your queen.');
   const audio = () => page.evaluate(() =>
-    (window as typeof window & { coachingAudio: { starts: number; held: number } }).coachingAudio);
+    (window as typeof window & { coachingAudio: { starts: number; effects: number; held: number } }).coachingAudio);
+  expect(await audio()).toEqual({ starts: 0, effects: 0, held: 0 });
+  await expect(page.getByRole('button', { name: 'Repeat message', exact: true })).toBeDisabled();
+  await mover.evaluate(piece => piece.getAnimations()[0].finish());
   await expect.poll(async () => (await audio()).starts).toBe(1);
+  await expect.poll(async () => (await audio()).effects).toBe(1);
+  await expect(page.getByRole('button', { name: 'Repeat message', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Repeat message', exact: true }).click();
   await expect.poll(async () => (await audio()).starts).toBe(2);
   await expect.poll(async () => (await audio()).held).toBe(1);
-  await mover.evaluate(piece => piece.getAnimations()[0].finish());
   expect(state(page).game.indices.length).toBe(5);
   await page.evaluate(() => (window as typeof window & { releaseCoachingAudio(): void }).releaseCoachingAudio());
   await expect.poll(() => state(page).game.indices.length, { timeout: 10000 }).toBe(6);
+  await expect(mover).toHaveClass(/black/);
+  expect((await audio()).effects).toBe(1);
+  expect((await audio()).starts).toBe(2);
+  await mover.evaluate(piece => piece.getAnimations()[0].finish());
+  await expect.poll(async () => (await audio()).effects).toBe(2);
+
+  const threatGame = new Game();
+  for (const move of ['e2e4', 'a7a6', 'd1h5']) threatGame.play(move);
+  const beforeThreat = await audio();
+  await page.goto('/' + gameHash(threatGame));
+  await expect(mover).toHaveClass(/black knight/);
+  await mover.evaluate(piece => piece.getAnimations()[0].pause());
+  expect(await audio()).toEqual(beforeThreat);
+  await expect(page.getByRole('button', { name: 'Repeat message', exact: true })).toBeDisabled();
+  await expect(page.locator('.motion-track polyline')).toHaveAttribute('marker-end', 'url(#motion-arrowhead)');
+  await mover.evaluate(piece => piece.getAnimations()[0].finish());
+  await expect.poll(async () => (await audio()).effects).toBe(beforeThreat.effects + 1);
+  await expect.poll(async () => (await audio()).starts).toBe(beforeThreat.starts + 1);
+  await expect(page.locator('#coach-message')).toHaveText('My knight can take your queen for free.');
+  const threat = page.locator('#move-arrows > path[data-from="f6"][data-to="h5"]');
+  await expect(threat).toHaveAttribute('stroke', '#cc653c');
+  await expect(threat).toHaveAttribute('marker-end', 'url(#arrowhead)');
 });
 
 test('Take Back reverses an in-flight human move at the shorter undo speed', async ({ page }) => {
@@ -113,6 +145,8 @@ test('Take Back reverses an in-flight human move at the shorter undo speed', asy
   const mover = page.locator('#motion-layer .moving-piece');
   await expect(mover).toHaveClass(/white knight/);
   await expect(page.locator('.motion-track polyline')).toHaveAttribute('points', '550,550 650,550 650,750');
+  await expect(page.locator('.motion-track polyline')).not.toHaveAttribute('marker-end', /.+/);
+  await expect(page.locator('#motion-arrowhead')).toHaveCount(0);
   expect(await mover.evaluate(piece => piece.getAnimations()[0].effect!.getTiming().duration)).toBe(undoDuration);
   expect(state(page).game.indices.length).toBe(0);
   await mover.evaluate(piece => piece.getAnimations()[0].finish());
@@ -130,6 +164,7 @@ test('Take Back walks the AI move back before the human move', { tag: '@cross-br
   await page.getByRole('button', { name: 'Take Back', exact: true }).click();
   await expect(mover).toHaveClass(/black knight/);
   await expect(page.locator('.motion-track polyline')).toHaveAttribute('points', '550,250 650,250 650,50');
+  await expect(page.locator('.motion-track polyline')).not.toHaveAttribute('marker-end', /.+/);
   await mover.evaluate(piece => piece.getAnimations()[0].finish());
   await expect(mover).toHaveClass(/white knight/);
   await expect(page.locator('.motion-track polyline')).toHaveAttribute('points', '550,550 650,550 650,750');

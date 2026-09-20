@@ -94,10 +94,11 @@ function releaseReply() {
   if (reply && !game.humanTurn) computerMove(reply);
   else syncEngine();
 }
-function startMotion(move: Move, reverse = false) {
+function startMotion(move: Move, reverse = false, landed?: () => void) {
   motion = animateMove(move, game.humanColor === 'b', $('#motion-layer'), () => {
     motion = undefined;
     render();
+    landed?.();
     if (reverse) playNextUndo();
     else releaseReply();
   }, reverse ? { reverse: true, duration: undoDuration } : undefined);
@@ -123,15 +124,20 @@ function positionMessage(fallback: readonly VoiceId[] = []): VoiceId[] {
   const hints = hintMessage();
   return hints.length ? hints : [...fallback];
 }
+function warnedCapture(): string | undefined {
+  if (!danger || game.humanTurn) return;
+  const captures = legalMoves(game.chess, game.rules).filter(move => move.from === danger!.from && move.to === danger!.to);
+  const capture = captures.find(move => move.promotion === 'q') ?? captures[0];
+  return capture ? uci(capture) : undefined;
+}
 function displayedMessage(): VoiceId[] { return message.length ? message : game.humanTurn && !game.over ? ['your-turn'] : []; }
 function refreshPositionHints() {
   attack = settings.blunders ? findAttack(game.chess, game.rules, game.humanColor) : undefined;
   opportunity = settings.blunders ? findFreeCapture(game.chess, game.rules, game.humanColor) : undefined;
 }
-function tell(next?: VoiceId | readonly VoiceId[], aloud = false, queue = false): Promise<void> | undefined {
+function tell(next?: VoiceId | readonly VoiceId[]) {
   message = !next ? [] : typeof next === 'string' ? [next] : [...next];
   render();
-  if (aloud && settings.blunders && message.length) return speak(message, queue);
 }
 function cancelEngine() {
   revision++; clearTimeout(replyTimer); queuedReply = undefined;
@@ -164,15 +170,19 @@ try {
 function computerMove(move: string) {
   clearTimeout(replyTimer);
   if (motion || coaching) { queuedReply = move; return; }
-  const played = game.play(move); selected = undefined;
-  startMotion(played);
-  playSound(settings.sound);
+  const played = game.play(warnedCapture() ?? move); selected = undefined;
   refreshPositionHints();
   const text = positionMessage(message);
-  // The blunder was already spoken immediately after the human move.
+  // The blunder was already spoken before the AI reply.
   // Do not queue a lower-priority tip behind it when the AI replies.
   const announce = !danger && !!(game.over || game.chess.isCheck() || hintMessage().length);
-  tell(text, announce, true); persist(); syncEngine();
+  const landed = () => {
+    playSound(settings.sound);
+    if (announce && settings.blunders) void speak(text, true);
+  };
+  const animated = startMotion(played, false, landed);
+  tell(text); persist(); syncEngine();
+  if (!animated) landed();
 }
 function humanMove(from: Key, to: Key) {
   if (!game.humanTurn || paused() || motion || game.over) { render(); return; }
@@ -189,20 +199,23 @@ function humanMove(from: Key, to: Key) {
 function commitHuman(move: string) {
   cancelEngine(); cancelCoach(); selected = undefined;
   const played = game.play(move);
-  startMotion(played);
-  playSound(settings.sound);
   const risk = findDanger(game.chess, game.rules, played);
   danger = settings.blunders ? risk : undefined; attack = undefined; opportunity = undefined;
   const next = game.over ?? danger?.voice ?? (risk ? undefined : 'good-move');
   const announce = !!game.over || !!danger || !risk;
   const token = ++coachToken;
   coaching = announce && settings.blunders && !!next;
-  const playback = tell(next, announce);
-  if (playback) void playback.finally(() => {
-    if (token !== coachToken) return;
-    coaching = false; releaseReply();
-  });
-  persist(); syncEngine();
+  const landed = () => {
+    playSound(settings.sound);
+    if (!coaching || !next || token !== coachToken) return;
+    void speak(next).finally(() => {
+      if (token !== coachToken) return;
+      coaching = false; releaseReply();
+    });
+  };
+  const animated = startMotion(played, false, landed);
+  tell(next); persist(); syncEngine();
+  if (!animated) landed();
 }
 function undo() {
   cancelEngine(); cancelMotion(); cancelCoach(); danger = undefined; attack = undefined; selected = undefined;
@@ -235,7 +248,7 @@ function renderHints() {
   const text = voiceText(ids);
   $('#coach-message').textContent = text;
   $('#coach').hidden = !text;
-  $<HTMLButtonElement>('#coach').disabled = !settings.blunders || !text;
+  $<HTMLButtonElement>('#coach').disabled = !settings.blunders || !text || !!motion;
   $('#coach').title = settings.blunders ? 'Repeat message' : '';
   if (motion) { $('#move-arrows').innerHTML = ''; return; }
   const threat = !game.humanTurn ? danger : !selected ? attack : undefined;
@@ -311,7 +324,7 @@ function showSettings() {
 $('#settings-button').addEventListener('click', showSettings);
 $('#coach').addEventListener('click', () => {
   const ids = displayedMessage();
-  if (!ids.length || !settings.blunders || paused()) return;
+  if (!ids.length || !settings.blunders || paused() || motion) return;
   warmAudio();
   const gateReply = !game.humanTurn && !game.over;
   const token = ++coachToken;
@@ -351,7 +364,7 @@ document.addEventListener('visibilitychange', () => {
   syncEngine();
 });
 matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', event => {
-  if (event.matches) { cancelMotion(); render(); syncEngine(); }
+  if (event.matches) { cancelMotion(); cancelCoach(); render(); syncEngine(); }
 });
 window.addEventListener('hashchange', () => {
   cancelEngine(); cancelMotion(); cancelCoach();

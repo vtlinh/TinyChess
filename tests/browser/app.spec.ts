@@ -129,6 +129,21 @@ test('initial board is simple, responsive, and shows knight L arrows', { tag: '@
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/' + gameHash(new Game()));
+  const install = await page.evaluate(async () => {
+    const manifestUrl = (document.querySelector('link[rel="manifest"]') as HTMLLinkElement).href;
+    const manifest = await fetch(manifestUrl).then(response => response.json());
+    const icons = await Promise.all(manifest.icons.map(async (icon: { src: string }) => {
+      const image = new Image(); image.src = new URL(icon.src, manifestUrl).href;
+      await image.decode(); return [image.naturalWidth, image.naturalHeight];
+    }));
+    return { manifest, icons,
+      apple: (document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement).href,
+      capable: (document.querySelector('meta[name="apple-mobile-web-app-capable"]') as HTMLMetaElement).content };
+  });
+  expect(install.manifest).toMatchObject({ name: 'Little Knight', start_url: '.', display: 'standalone', theme_color: '#252525' });
+  expect(install.icons).toEqual([[192, 192], [512, 512]]);
+  expect(install.apple).toMatch(/icons\/apple-touch-icon\.png$/);
+  expect(install.capable).toBe('yes');
   await expect(page.locator('cg-board piece:not(.ghost)')).toHaveCount(32);
   await expect(page.locator('#turn-badge')).toHaveCount(0);
   await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
@@ -220,17 +235,20 @@ test('rule changes start a new game and round trip in the URL', async ({ page })
 });
 
 test('unsafe move warns above the board and bounces Take Back without pausing', async ({ page }) => {
+  await page.route('**/assets/worker-*.js', route => route.fulfill({ contentType: 'text/javascript', body:
+    `self.onmessage = ({ data }) => { if (data.type === 'play') self.postMessage({ id: data.id, fen: data.fen, move: 'g8f6' }); };` }));
   const game = new Game();
-  for (const move of ['e2e4', 'e7e5', 'd1h5', 'b8c6']) game.play(move);
+  for (const move of ['e2e4', 'a7a6']) game.play(move);
   await page.goto('/' + gameHash(game));
-  await square(page, 'h5'); await square(page, 'e5');
+  await square(page, 'f1'); await square(page, 'b5');
   await expect(page.locator('#undo')).toHaveClass(/blunder-bounce/);
-  await expect.poll(() => state(page)?.game.indices.length).toBe(6);
-  await expect(page.locator('.opponent #coach-message')).toContainText('queen');
+  await expect(page.locator('.opponent #coach-message')).toHaveText('Careful! I can take your bishop.');
+  await expect.poll(() => state(page)?.game.indices.length).toBe(4);
+  expect(state(page)?.game.moves.at(-1)).toMatchObject({ from: 'a6', to: 'b5', captured: 'b' });
   expect((await page.locator('#coach').boundingBox())!.y).toBeLessThan((await page.locator('#board').boundingBox())!.y);
   expect(state(page)?.pending).toBe(false);
   await page.getByRole('button', { name: 'Take Back' }).click();
-  expect(state(page)?.game.indices.length).toBe(4);
+  expect(state(page)?.game.indices.length).toBe(2);
   await expect(page.locator('#undo')).not.toHaveClass(/blunder-bounce/);
   await expect(page.locator('.opponent #coach-message')).toHaveText('Your turn');
 });
@@ -401,7 +419,9 @@ test('Blunder Buddy suggests a free rook without revealing the capturer, repeats
   await expect(page.locator('#coach-message')).toHaveText('I think you can capture this rook for free.');
   await expect(page.locator('#move-arrows > path')).toHaveCount(0);
   await square(page, 'f7');
-  await expect(page.locator('#move-arrows > path[data-from="f7"][data-to="h8"]')).toHaveAttribute('stroke', '#37644f');
+  const legalArrow = page.locator('#move-arrows > path[data-from="f7"][data-to="h8"]');
+  await expect(legalArrow).toHaveAttribute('stroke', '#37644f');
+  await expect(legalArrow).toHaveAttribute('marker-end', 'url(#arrowhead)');
   await square(page, 'h8');
   await expect.poll(() => state(page)?.game.indices.length).toBe(14);
   await expect(page.locator('#coach-message')).not.toContainText('capture this rook for free');
@@ -440,6 +460,9 @@ test('AI attack warning stays above the board without blunder bounce, and mode o
   for (const move of ['e2e4', 'd7d5', 'b1c3', 'd5d4']) game.play(move);
   await page.goto('/' + gameHash(game));
   await expect(page.locator('.opponent #coach-message')).toHaveText('My pawn can take your knight.');
+  const threat = page.locator('#move-arrows > path[data-from="d4"][data-to="c3"]');
+  await expect(threat).toHaveAttribute('stroke', '#cc653c');
+  await expect(threat).toHaveAttribute('marker-end', 'url(#arrowhead)');
   await expect(page.locator('#undo')).not.toHaveClass(/blunder-bounce/);
   await settings(page);
   await page.locator('wa-radio-group[name="blunders"]').getByRole('radio', { name: 'Off', exact: true }).click();

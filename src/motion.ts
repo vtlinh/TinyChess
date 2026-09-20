@@ -43,8 +43,11 @@ export function animateMove(move: Move, flipped: boolean, layer: HTMLElement, do
   const plan = motionPlan(move, flipped, options.reverse);
   const animations: Animation[] = [];
   let cancelled = false;
-  layer.innerHTML = `<svg class="motion-track" viewBox="0 0 800 800" aria-hidden="true">${plan.pieces.map(piece =>
-    `<polyline points="${piece.route.map(([x, y]) => `${x * 100 + 50},${y * 100 + 50}`).join(' ')}"/>`).join('')}</svg>`;
+  const arrow = options.reverse ? '' : ' marker-end="url(#motion-arrowhead)"';
+  layer.innerHTML = `<svg class="motion-track" viewBox="0 0 800 800" aria-hidden="true">
+    ${options.reverse ? '' : '<defs><marker id="motion-arrowhead" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="28" markerHeight="28" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z"/></marker></defs>'}
+    ${plan.pieces.map(piece => `<polyline points="${piece.route.map(([x, y]) => `${x * 100 + 50},${y * 100 + 50}`).join(' ')}"${arrow}/>`).join('')}
+  </svg>`;
   for (const piece of plan.pieces) {
     const element = document.createElement('piece');
     element.className = `${plan.color} ${piece.role} moving-piece`;
