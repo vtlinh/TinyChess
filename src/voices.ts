@@ -1,0 +1,130 @@
+/** Single source of truth for every spoken coaching phrase and its checked-in audio. */
+interface VoiceLine { phrase: string; audio: { file: string; start: number; duration: number } }
+
+export const voices = {
+  "good-move": { phrase: "Good move!", audio: { file: 'voices/coach.mp3', start: 100, duration: 883 } },
+  "your-turn": { phrase: "Your turn", audio: { file: 'voices/coach.mp3', start: 1123, duration: 870 } },
+  "king-in-check": { phrase: "Your king is in check.", audio: { file: 'voices/coach.mp3', start: 2132, duration: 1348 } },
+  "human-checkmated": { phrase: "Checkmate! Let’s try again. Every game helps you learn.", audio: { file: 'voices/coach.mp3', start: 3620, duration: 3233 } },
+  "ai-checkmated": { phrase: "Checkmate! You did it, little knight!", audio: { file: 'voices/coach.mp3', start: 6992, duration: 1783 } },
+  "stalemate": { phrase: "A tie! No one has a move. Let’s play again.", audio: { file: 'voices/coach.mp3', start: 8915, duration: 2784 } },
+  "draw": { phrase: "It’s a tie! That was a good adventure.", audio: { file: 'voices/coach.mp3', start: 11838, duration: 2226 } },
+  "invalid-game-link": { phrase: "That game link could not be opened.", audio: { file: 'voices/coach.mp3', start: 14203, duration: 1933 } },
+  "invalid-game-link-current": { phrase: "That game link could not be opened. Your current game is still here.", audio: { file: 'voices/coach.mp3', start: 16276, duration: 3704 } },
+  "blunder-pawn": { phrase: "Careful! I can take your pawn.", audio: { file: 'voices/coach.mp3', start: 20119, duration: 1729 } },
+  "exposed-pawn": { phrase: "That move exposed your pawn.", audio: { file: 'voices/coach.mp3', start: 21988, duration: 1671 } },
+  "capture-pawn-free": { phrase: "I think you can capture this pawn for free.", audio: { file: 'voices/coach.mp3', start: 23799, duration: 2170 } },
+  "blunder-knight": { phrase: "Careful! I can take your knight.", audio: { file: 'voices/coach.mp3', start: 26108, duration: 1666 } },
+  "exposed-knight": { phrase: "That move exposed your knight.", audio: { file: 'voices/coach.mp3', start: 27913, duration: 1661 } },
+  "capture-knight-free": { phrase: "I think you can capture this knight for free.", audio: { file: 'voices/coach.mp3', start: 29714, duration: 2218 } },
+  "blunder-bishop": { phrase: "Careful! I can take your bishop.", audio: { file: 'voices/coach.mp3', start: 32071, duration: 1798 } },
+  "exposed-bishop": { phrase: "That move exposed your bishop.", audio: { file: 'voices/coach.mp3', start: 34008, duration: 1749 } },
+  "capture-bishop-free": { phrase: "I think you can capture this bishop for free.", audio: { file: 'voices/coach.mp3', start: 35897, duration: 2280 } },
+  "blunder-rook": { phrase: "Careful! I can take your rook.", audio: { file: 'voices/coach.mp3', start: 38316, duration: 1688 } },
+  "exposed-rook": { phrase: "That move exposed your rook.", audio: { file: 'voices/coach.mp3', start: 40144, duration: 1661 } },
+  "capture-rook-free": { phrase: "I think you can capture this rook for free.", audio: { file: 'voices/coach.mp3', start: 41945, duration: 2145 } },
+  "blunder-queen": { phrase: "Careful! I can take your queen.", audio: { file: 'voices/coach.mp3', start: 44229, duration: 1726 } },
+  "exposed-queen": { phrase: "That move exposed your queen.", audio: { file: 'voices/coach.mp3', start: 46095, duration: 1751 } },
+  "capture-queen-free": { phrase: "I think you can capture this queen for free.", audio: { file: 'voices/coach.mp3', start: 47986, duration: 2170 } },
+  "attack-pawn-pawn-free": { phrase: "My pawn can take your pawn for free.", audio: { file: 'voices/coach.mp3', start: 50295, duration: 2073 } },
+  "attack-pawn-knight-free": { phrase: "My pawn can take your knight for free.", audio: { file: 'voices/coach.mp3', start: 52508, duration: 1952 } },
+  "attack-pawn-bishop-free": { phrase: "My pawn can take your bishop for free.", audio: { file: 'voices/coach.mp3', start: 54600, duration: 2130 } },
+  "attack-pawn-rook-free": { phrase: "My pawn can take your rook for free.", audio: { file: 'voices/coach.mp3', start: 56870, duration: 1950 } },
+  "attack-pawn-queen-free": { phrase: "My pawn can take your queen for free.", audio: { file: 'voices/coach.mp3', start: 58959, duration: 2024 } },
+  "attack-knight-pawn-free": { phrase: "My knight can take your pawn for free.", audio: { file: 'voices/coach.mp3', start: 61122, duration: 1995 } },
+  "attack-knight-knight-free": { phrase: "My knight can take your knight for free.", audio: { file: 'voices/coach.mp3', start: 63257, duration: 1929 } },
+  "attack-knight-bishop-free": { phrase: "My knight can take your bishop for free.", audio: { file: 'voices/coach.mp3', start: 65326, duration: 2043 } },
+  "attack-knight-rook-free": { phrase: "My knight can take your rook for free.", audio: { file: 'voices/coach.mp3', start: 67508, duration: 1883 } },
+  "attack-knight-queen-free": { phrase: "My knight can take your queen for free.", audio: { file: 'voices/coach.mp3', start: 69531, duration: 1968 } },
+  "attack-bishop-pawn-free": { phrase: "My bishop can take your pawn for free.", audio: { file: 'voices/coach.mp3', start: 71639, duration: 2117 } },
+  "attack-bishop-knight-free": { phrase: "My bishop can take your knight for free.", audio: { file: 'voices/coach.mp3', start: 73896, duration: 2008 } },
+  "attack-bishop-bishop-free": { phrase: "My bishop can take your bishop for free.", audio: { file: 'voices/coach.mp3', start: 76043, duration: 2168 } },
+  "attack-bishop-rook-free": { phrase: "My bishop can take your rook for free.", audio: { file: 'voices/coach.mp3', start: 78351, duration: 2000 } },
+  "attack-bishop-queen-free": { phrase: "My bishop can take your queen for free.", audio: { file: 'voices/coach.mp3', start: 80491, duration: 2143 } },
+  "attack-rook-pawn-free": { phrase: "My rook can take your pawn for free.", audio: { file: 'voices/coach.mp3', start: 82773, duration: 1977 } },
+  "attack-rook-knight-free": { phrase: "My rook can take your knight for free.", audio: { file: 'voices/coach.mp3', start: 84889, duration: 1968 } },
+  "attack-rook-bishop-free": { phrase: "My rook can take your bishop for free.", audio: { file: 'voices/coach.mp3', start: 86997, duration: 2078 } },
+  "attack-rook-rook-free": { phrase: "My rook can take your rook for free.", audio: { file: 'voices/coach.mp3', start: 89214, duration: 1922 } },
+  "attack-rook-queen-free": { phrase: "My rook can take your queen for free.", audio: { file: 'voices/coach.mp3', start: 91275, duration: 2018 } },
+  "attack-queen-pawn-free": { phrase: "My queen can take your pawn for free.", audio: { file: 'voices/coach.mp3', start: 93433, duration: 2055 } },
+  "attack-queen-knight-free": { phrase: "My queen can take your knight for free.", audio: { file: 'voices/coach.mp3', start: 95627, duration: 1942 } },
+  "attack-queen-bishop-free": { phrase: "My queen can take your bishop for free.", audio: { file: 'voices/coach.mp3', start: 97709, duration: 2067 } },
+  "attack-queen-rook-free": { phrase: "My queen can take your rook for free.", audio: { file: 'voices/coach.mp3', start: 99916, duration: 1930 } },
+  "attack-queen-queen-free": { phrase: "My queen can take your queen for free.", audio: { file: 'voices/coach.mp3', start: 101986, duration: 2010 } },
+  "attack-king-pawn-free": { phrase: "My king can take your pawn for free.", audio: { file: 'voices/coach.mp3', start: 104135, duration: 2035 } },
+  "attack-king-knight-free": { phrase: "My king can take your knight for free.", audio: { file: 'voices/coach.mp3', start: 106309, duration: 1962 } },
+  "attack-king-bishop-free": { phrase: "My king can take your bishop for free.", audio: { file: 'voices/coach.mp3', start: 108410, duration: 2078 } },
+  "attack-king-rook-free": { phrase: "My king can take your rook for free.", audio: { file: 'voices/coach.mp3', start: 110627, duration: 1937 } },
+  "attack-king-queen-free": { phrase: "My king can take your queen for free.", audio: { file: 'voices/coach.mp3', start: 112704, duration: 2060 } },
+  "attack-pawn-knight": { phrase: "My pawn can take your knight.", audio: { file: 'voices/coach.mp3', start: 114903, duration: 1524 } },
+  "attack-pawn-bishop": { phrase: "My pawn can take your bishop.", audio: { file: 'voices/coach.mp3', start: 116566, duration: 1676 } },
+  "attack-pawn-rook": { phrase: "My pawn can take your rook.", audio: { file: 'voices/coach.mp3', start: 118381, duration: 1582 } },
+  "attack-pawn-queen": { phrase: "My pawn can take your queen.", audio: { file: 'voices/coach.mp3', start: 120103, duration: 1615 } },
+  "attack-knight-rook": { phrase: "My knight can take your rook.", audio: { file: 'voices/coach.mp3', start: 121858, duration: 1577 } },
+  "attack-knight-queen": { phrase: "My knight can take your queen.", audio: { file: 'voices/coach.mp3', start: 123574, duration: 1602 } },
+  "attack-bishop-rook": { phrase: "My bishop can take your rook.", audio: { file: 'voices/coach.mp3', start: 125316, duration: 1634 } },
+  "attack-bishop-queen": { phrase: "My bishop can take your queen.", audio: { file: 'voices/coach.mp3', start: 127090, duration: 1671 } },
+  "attack-rook-queen": { phrase: "My rook can take your queen.", audio: { file: 'voices/coach.mp3', start: 128900, duration: 1577 } },
+} as const satisfies Record<string, VoiceLine>;
+
+export type VoiceId = keyof typeof voices;
+export type PieceVoice = 'pawn' | 'knight' | 'bishop' | 'rook' | 'queen' | 'king';
+export const voiceText = (ids: readonly VoiceId[]) => ids.map(id => voices[id].phrase).join(' ');
+
+export const blunderVoice = {
+  pawn: 'blunder-pawn', knight: 'blunder-knight', bishop: 'blunder-bishop', rook: 'blunder-rook', queen: 'blunder-queen',
+} as const satisfies Partial<Record<PieceVoice, VoiceId>>;
+export const exposedVoice = {
+  pawn: 'exposed-pawn', knight: 'exposed-knight', bishop: 'exposed-bishop', rook: 'exposed-rook', queen: 'exposed-queen',
+} as const satisfies Partial<Record<PieceVoice, VoiceId>>;
+export const opportunityVoice = {
+  pawn: 'capture-pawn-free', knight: 'capture-knight-free', bishop: 'capture-bishop-free', rook: 'capture-rook-free', queen: 'capture-queen-free',
+} as const satisfies Partial<Record<PieceVoice, VoiceId>>;
+
+const attackVoices = {
+  'pawn:pawn:free': 'attack-pawn-pawn-free',
+  'pawn:knight:free': 'attack-pawn-knight-free',
+  'pawn:bishop:free': 'attack-pawn-bishop-free',
+  'pawn:rook:free': 'attack-pawn-rook-free',
+  'pawn:queen:free': 'attack-pawn-queen-free',
+  'knight:pawn:free': 'attack-knight-pawn-free',
+  'knight:knight:free': 'attack-knight-knight-free',
+  'knight:bishop:free': 'attack-knight-bishop-free',
+  'knight:rook:free': 'attack-knight-rook-free',
+  'knight:queen:free': 'attack-knight-queen-free',
+  'bishop:pawn:free': 'attack-bishop-pawn-free',
+  'bishop:knight:free': 'attack-bishop-knight-free',
+  'bishop:bishop:free': 'attack-bishop-bishop-free',
+  'bishop:rook:free': 'attack-bishop-rook-free',
+  'bishop:queen:free': 'attack-bishop-queen-free',
+  'rook:pawn:free': 'attack-rook-pawn-free',
+  'rook:knight:free': 'attack-rook-knight-free',
+  'rook:bishop:free': 'attack-rook-bishop-free',
+  'rook:rook:free': 'attack-rook-rook-free',
+  'rook:queen:free': 'attack-rook-queen-free',
+  'queen:pawn:free': 'attack-queen-pawn-free',
+  'queen:knight:free': 'attack-queen-knight-free',
+  'queen:bishop:free': 'attack-queen-bishop-free',
+  'queen:rook:free': 'attack-queen-rook-free',
+  'queen:queen:free': 'attack-queen-queen-free',
+  'king:pawn:free': 'attack-king-pawn-free',
+  'king:knight:free': 'attack-king-knight-free',
+  'king:bishop:free': 'attack-king-bishop-free',
+  'king:rook:free': 'attack-king-rook-free',
+  'king:queen:free': 'attack-king-queen-free',
+  'pawn:knight:trade': 'attack-pawn-knight',
+  'pawn:bishop:trade': 'attack-pawn-bishop',
+  'pawn:rook:trade': 'attack-pawn-rook',
+  'pawn:queen:trade': 'attack-pawn-queen',
+  'knight:rook:trade': 'attack-knight-rook',
+  'knight:queen:trade': 'attack-knight-queen',
+  'bishop:rook:trade': 'attack-bishop-rook',
+  'bishop:queen:trade': 'attack-bishop-queen',
+  'rook:queen:trade': 'attack-rook-queen',
+} as const satisfies Record<string, VoiceId>;
+
+export function attackVoice(attacker: PieceVoice, victim: PieceVoice, free: boolean): VoiceId {
+  const id = attackVoices[`${attacker}:${victim}:${free ? 'free' : 'trade'}` as keyof typeof attackVoices];
+  if (!id) throw new Error(`Missing voice for ${attacker} taking ${victim}`);
+  return id;
+}

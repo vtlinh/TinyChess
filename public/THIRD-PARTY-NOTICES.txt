@@ -1,0 +1,51 @@
+Little Knight — open-source chess for first steps
+Application: GPL-3.0-or-later. License: ./LICENSE.txt
+Corresponding application and dependency source: ./source.tar.gz
+
+Chessground 10.1.1 — Lichess contributors — GPL-3.0-or-later
+https://github.com/lichess-org/chessground
+
+chess.js 1.4.0 — Jeff Hlywa and contributors — BSD-2-Clause
+https://github.com/jhlywa/chess.js
+
+Web Awesome 3.12.0 — Fonticons, Inc. — MIT
+https://github.com/shoelace-style/webawesome
+Accessible segmented radio controls. Library license is included in the source archive.
+
+Howler 2.2.4 — James Simpson and contributors — MIT
+https://github.com/goldfire/howler.js
+Move sounds are original synthesized waveforms in src/audio.ts (GPL-3.0-or-later).
+
+Kokoro 82M / af_heart voice — hexgrad and contributors — Apache-2.0
+https://huggingface.co/hexgrad/Kokoro-82M
+The checked-in coaching recordings were generated locally from the application’s
+own text. The app ships the compressed recordings, not the model or a voice API.
+
+Piece artwork (unmodified SVG source included in ./pieces):
+Classic / cburnett — Colin M. L. Burnett — GPL-2.0-or-later
+Storybook / fantasy, Space / spatial, Celtic — Maurizio Monge — MIT
+https://github.com/maurimo/chess-art
+Merida — Armando Hernandez Marroquin — GPL-2.0-or-later
+Chessnut — Alexis Luengas — Apache-2.0
+Shapes — flugsio — CC-BY-SA-4.0
+Pixel — therealqtpi — AGPL-3.0-or-later
+Letters — usolando — AGPL-3.0-or-later
+Pirouetti — pirouetti — AGPL-3.0-or-later
+RhosGFX — RhosGFX — CC0-1.0
+MP Chess — Maxime Chupin — GPL-3.0-or-later
+The full upstream attribution table and pinned source revision are in
+pieces/UPSTREAM-COPYING.md and pieces/provenance.json.
+
+Lichess board textures — the lila authors and pirouetti — AGPL-3.0-or-later
+Unmodified image sources are in ./boards. Attribution and pinned revision:
+boards/provenance.json and pieces/UPSTREAM-COPYING.md.
+License texts for the artwork are distributed in ./pieces/licenses/.
+
+DM Sans — Colophon Foundry — SIL Open Font License 1.1
+Outfit — Rodrigo Fuenzalida — SIL Open Font License 1.1
+Distributed through @fontsource; license texts included in the source archive.
+
+Inspired by pathikrit/talbot (GPL-3.0-only), particularly its compact legal-move
+index URL encoding, Chessground/chess.js pairing, and background pondering.
+https://github.com/pathikrit/talbot
+No Talbot sound recordings are redistributed.

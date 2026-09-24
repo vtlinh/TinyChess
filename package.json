@@ -1,0 +1,36 @@
+{
+  "name": "little-knight",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build && node scripts/package-source.mjs",
+    "site": "npm run build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run --coverage",
+    "test:unit": "vitest run",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "@awesome.me/webawesome": "^3.12.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/outfit": "^5.3.0",
+    "@lichess-org/chessground": "10.1.1",
+    "chess.js": "1.4.0",
+    "howler": "2.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/howler": "^2.2.12",
+    "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^5.0.0",
+    "typescript": "~5.9.3",
+    "vite": "8.2.2",
+    "vitest": "5.0.0"
+  }
+}

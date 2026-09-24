@@ -1,0 +1,66 @@
+{
+  "repository": "https://github.com/lichess-org/lila",
+  "revision": "3b9e994e4f8f7fbd0b45e569b35d872457a6eb12",
+  "sets": {
+    "cburnett": {
+      "name": "Classic",
+      "author": "Colin M. L. Burnett",
+      "license": "GPL-2.0-or-later"
+    },
+    "fantasy": {
+      "name": "Storybook",
+      "author": "Maurizio Monge",
+      "license": "MIT"
+    },
+    "spatial": {
+      "name": "Space",
+      "author": "Maurizio Monge",
+      "license": "MIT"
+    },
+    "celtic": {
+      "name": "Celtic",
+      "author": "Maurizio Monge",
+      "license": "MIT"
+    },
+    "merida": {
+      "name": "Merida",
+      "author": "Armando Hernandez Marroquin",
+      "license": "GPL-2.0-or-later"
+    },
+    "pirouetti": {
+      "name": "Pirouetti",
+      "author": "pirouetti",
+      "license": "AGPL-3.0-or-later"
+    },
+    "chessnut": {
+      "name": "Chessnut",
+      "author": "Alexis Luengas",
+      "license": "Apache-2.0"
+    },
+    "shapes": {
+      "name": "Shapes",
+      "author": "flugsio",
+      "license": "CC-BY-SA-4.0"
+    },
+    "pixel": {
+      "name": "Pixel",
+      "author": "therealqtpi",
+      "license": "AGPL-3.0-or-later"
+    },
+    "letter": {
+      "name": "Letters",
+      "author": "usolando",
+      "license": "AGPL-3.0-or-later"
+    },
+    "rhosgfx": {
+      "name": "RhosGFX",
+      "author": "RhosGFX",
+      "license": "CC0-1.0"
+    },
+    "mpchess": {
+      "name": "MP Chess",
+      "author": "Maxime Chupin",
+      "license": "GPL-3.0-or-later"
+    }
+  }
+}

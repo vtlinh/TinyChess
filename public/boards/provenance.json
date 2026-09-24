@@ -1,0 +1,31 @@
+{
+  "repository": "https://github.com/lichess-org/lila",
+  "revision": "3b9e994e4f8f7fbd0b45e569b35d872457a6eb12",
+  "author": "The lila authors and pirouetti",
+  "license": "AGPL-3.0-or-later",
+  "files": [
+    "brown.png",
+    "blue.png",
+    "blue2.jpg",
+    "blue3.jpg",
+    "blue-marble.jpg",
+    "canvas2.jpg",
+    "green.png",
+    "green-plastic.png",
+    "grey.jpg",
+    "ic.png",
+    "leather.jpg",
+    "maple.jpg",
+    "maple2.jpg",
+    "marble.jpg",
+    "metal.jpg",
+    "olive.jpg",
+    "pink-pyramid.png",
+    "purple.png",
+    "purple-diag.png",
+    "wood.jpg",
+    "wood2.jpg",
+    "wood3.jpg",
+    "wood4.jpg"
+  ]
+}
